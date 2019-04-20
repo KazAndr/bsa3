@@ -1,4 +1,5 @@
 # Directories
+__pycache__/
 data_pnt/
 .ipynb_checkpoints/
 
