@@ -1,3 +1,8 @@
 # Directories
 data_pnt/
 .ipynb_checkpoints/
+
+#Pattern of files
+..*~
+.*~
+#just test

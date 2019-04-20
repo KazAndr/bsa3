@@ -5,4 +5,4 @@ data_pnt/
 #Pattern of files
 ..*~
 .*~
-#just test
+secret_key.py
