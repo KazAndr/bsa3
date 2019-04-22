@@ -4,65 +4,201 @@ from astropy.coordinates import Angle
 from astropy.time import Time
 from astropy import units as u
 
+
 def read_pnt(filename):
+    """
+    Help on function read_pnt in module BSA3_pack:
+
+    read_pnt(filename):
+        return header, 4-dementional array
+
+    Discription
+    ----------
+    The function reads file "filename" in format *.pnt or *.pnthr.
+    The function gets name of file or full path to file as input data
+    and return header information and
+    4-dementions array [npoints, modules, rays, bands].
+
+    Parameters
+    ----------
+    filename : str
+    Input data. Name of file in current directory or full path to file.
+
+    Returns
+    -------
+    header : dict
+            Dictionary with header information, such as recolution,
+            numbers of point, time of start and end of observations.
+            Every value of dictionary is a list of element(s).
+    data : ndarray
+            4-dementions array [npoints, modules, rays, bands] with
+            results of observation.
+
+    Examples
+    --------
+    >>> header, data = read_pnt('./data_pnt/010419_01_N2_00.pnt')
+    >>> print(header['date_begin'])
+    ['01.04.2019', 'UTC', '31.03.2019']
+
+    >>> print('npoints = ', len(data), '\n',
+            'modules = ', len(data[0]), '\n',
+            'rays = ', len(data[0][0]), '\n',
+            'bands = ', len(data[0][0][0]))
+
+    npoints =  36017
+     modules =  6
+     rays =  8
+     bands =  7
+    """
+
     header = {}
-    with open(filename, 'rb') as F: #работает
+    with open(filename, 'rb') as F:
         for i in range(16):
             line = F.readline()
             a, *b = line.decode("utf-8").strip('\n').split()
-            header[a] = b  
-        
+            header[a] = b
+
         data = np.fromfile(F, dtype=np.float32)
-        data = data.reshape((int(header['npoints'][0]), 6, 8, len(header['fbands']) + 1))
-    
+        data = data.reshape(
+                int(header['npoints'][0], 6, 8, len(header['fbands']) + 1))
+
     return header, data
 
+
 def get_time_begin_and_end(header):
+    """
+    Help on function read_pnt in module BSA3_pack:
+
+    get_time_begin_and_end(header):
+        return time_start, time_end
+
+    Discription
+    ----------
+    The function gets time begin & end of observations from header information.
+    The header information is geted from read_pnt output of the module's func.
+    The function gets dictionary with header information
+    and return time begin and end of observations.
+
+    Parameters
+    ----------
+    header : dict
+    Input data. Dictionary with header information, such as recolution,
+    numbers of point, time of start and end of observations.
+    Every value of dictionary is a list of element(s).
+
+    Returns
+    -------
+    time_start : astropy.time.core.Time
+            Time of begin of observations(current position time)
+    time_end : astropy.time.core.Time
+            Time of end of observations(current position time)
+
+    Examples
+    --------
+    >>> header, data = read_pnt('./data_pnt/010419_01_N2_00.pnt')
+    >>> print(header['date_begin'])
+    ['01.04.2019', 'UTC', '31.03.2019']
+
+    >>> get_time_begin_and_end(header)
+    (<Time object: scale='utc' format='isot' value=2019-03-31T20:00:00.000000>,
+     <Time object: scale='utc' format='isot' value=2019-04-01T00:59:59.000000>)
+    """
+
     if 'UTC' in header['date_begin']:
         # begin
         day, month, year = header['date_begin'][2].split('.')
         hour, minute, second = header['time_begin'][2].split(':')
         isot_time = (year + '-' + month + '-' + day + 'T' +
-                     hour + ':' + minute + ':' + second 
-        )
+                     hour + ':' + minute + ':' + second
+                     )
         time_start = Time(isot_time,
-                          format='isot', scale='utc', location=('37.36d', '54.50d'),precision=7)
+                          format='isot',
+                          scale='utc',
+                          location=('37.36d', '54.50d'),
+                          precision=7)
         # end
         day, month, year = header['date_end'][0].split('.')
         hour, minute, second = header['time_end'][0].split(':')
         isot_time = (year + '-' + month + '-' + day + 'T' +
-                     hour + ':' + minute + ':' + second 
-        )
+                     hour + ':' + minute + ':' + second
+                     )
         time_end = Time(isot_time,
-                        format='isot', scale='utc', location=('37.36d', '54.50d'),precision=7)
+                        format='isot',
+                        scale='utc',
+                        location=('37.36d', '54.50d'),
+                        precision=7)
     else:
         # begin
         day, month, year = header['date_begin'][0].split('.')
         hour, minute, second = header['time_begin'][0].split(':')
         isot_time = (year + '-' + month + '-' + day + 'T' +
-                     hour + ':' + minute + ':' + second 
-        )
+                     hour + ':' + minute + ':' + second
+                     )
         time_start = Time(isot_time,
-                          format='isot', scale='utc', location=('37.36d', '54.50d'),precision=7)
+                          format='isot',
+                          scale='utc',
+                          location=('37.36d', '54.50d'),
+                          precision=7)
         time_start -= 4*u.hour
         # end
         day, month, year = header['date_end'][0].split('.')
         hour, minute, second = header['time_end'][0].split(':')
         isot_time = (year + '-' + month + '-' + day + 'T' +
-                     hour + ':' + minute + ':' + second 
-        )
+                     hour + ':' + minute + ':' + second
+                     )
         time_end = Time(isot_time,
-                        format='isot', scale='utc', location=('37.36d', '54.50d'),precision=7)
-        time_end -= 4*u.hour
-        
+                        format='isot',
+                        scale='utc',
+                        location=('37.36d', '54.50d'),
+                        precision=7)
+
     return time_start, time_end
 
+
 def my_sidereal_time(time):
+    """
+    Help on function my_sidereal_time in module BSA3_pack:
+
+    my_sidereal_time(time):
+        return sidereal_time
+
+    Discription
+    ----------
+    The function gets a time point and return sideral time of the point.
+    The algorithm was taken from
+    https://github.com/vtyulb/BSA-Analytics/tree/master/src.
+    In files starttime.cpp and reader.cpp.
+
+    Parameters
+    ----------
+    header : dict
+    Input data. Dictionary with header information, such as recolution,
+    numbers of point, time of start and end of observations.
+    Every value of dictionary is a list of element(s).
+
+    Returns
+    -------
+    time_start : astropy.time.core.Time
+    Time of begin of observations(current position time)
+    time_end : astropy.time.core.Time
+    Time of end of observations(current position time)
+
+    Examples
+    --------
+    >>> header, data = read_pnt('./data_pnt/010419_01_N2_00.pnt')
+    >>> print(header['date_begin'])
+    ['01.04.2019', 'UTC', '31.03.2019']
+
+    >>> get_time_begin_and_end(header)
+    (<Time object: scale='utc' format='isot' value=2019-03-31T20:00:00.0000000>,
+     <Time object: scale='utc' format='isot' value=2019-04-01T00:59:59.0000000>)
+    """
+
     t2000 = Time('2000-01-01T00:00:00', format='isot', scale='utc', precision=7)
     t = time.jd - t2000.jd - 1
     t /= 36525
     s0 = 6 + 41 / 60.0 + 50.55 / 3600.0 + 8640184 / 3600.0 * t + 0.093104 / 3600.0 * t * t - 6.27 / 3600.0 * (1e-6) * t * t * t
-    t_culm = (time.datetime.hour*u.hour 
+    t_culm = (time.datetime.hour*u.hour
           + time.datetime.minute*u.minute
           + time.datetime.second*u.second
           + time.datetime.microsecond*u.microsecond
@@ -85,7 +221,7 @@ def my_sidereal_time(time):
 
     t = y / z
     alf = culm * np.pi / 12 + np.arctan(t)
-    
+
     rs = 4.8481368e-6
     am = 46.1 * rs
     an = 20.4 * rs
