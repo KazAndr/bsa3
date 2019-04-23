@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 
 from astropy.coordinates import Angle
@@ -171,38 +173,35 @@ def my_sidereal_time(time):
 
     Parameters
     ----------
-    header : dict
-    Input data. Dictionary with header information, such as recolution,
-    numbers of point, time of start and end of observations.
-    Every value of dictionary is a list of element(s).
+    time : astropy.time.core.Time
+    Input data. Current time of some point.
 
     Returns
     -------
-    time_start : astropy.time.core.Time
-    Time of begin of observations(current position time)
-    time_end : astropy.time.core.Time
-    Time of end of observations(current position time)
+    sidereal_time : astropy.coordinates.angles.Angle
+    Sideral time of the point
 
     Examples
     --------
-    >>> header, data = read_pnt('./data_pnt/010419_01_N2_00.pnt')
-    >>> print(header['date_begin'])
-    ['01.04.2019', 'UTC', '31.03.2019']
+    >>> t_b
+    <Time object: scale='utc' format='isot' value=2019-04-21T13:00:00.0000000>
 
-    >>> get_time_begin_and_end(header)
-    (<Time object: scale='utc' format='isot' value=2019-03-31T20:00:00.0000000>,
-     <Time object: scale='utc' format='isot' value=2019-04-01T00:59:59.0000000>)
+    >>> my_sidereal_time(t_b)
+    5h30m13.3012s
     """
 
-    t2000 = Time('2000-01-01T00:00:00', format='isot', scale='utc', precision=7)
+    t2000 = Time('2000-01-01T00:00:00',
+                 format='isot',
+                 scale='utc',
+                 precision=7
+                 )
     t = time.jd - t2000.jd - 1
     t /= 36525
     s0 = 6 + 41 / 60.0 + 50.55 / 3600.0 + 8640184 / 3600.0 * t + 0.093104 / 3600.0 * t * t - 6.27 / 3600.0 * (1e-6) * t * t * t
     t_culm = (time.datetime.hour*u.hour
-          + time.datetime.minute*u.minute
-          + time.datetime.second*u.second
-          + time.datetime.microsecond*u.microsecond
-             )
+              + time.datetime.minute*u.minute
+              + time.datetime.second*u.second
+              + time.datetime.microsecond*u.microsecond)
     alambda = 2 + 30/60.0 + 34/3600.0
     cnst = 2.7379093e-3
     s_culm = s0 + (cnst + 1) * t_culm.value + alambda
@@ -236,10 +235,10 @@ def my_sidereal_time(time):
         alfa1 = (alf_res + alfa) / 2
         delta1 = (delt_res + delt) / 2
 
-    alf_res /= (15 * rs);
-    delt_res /= rs;
+    alf_res /= (15 * rs)
+    delt_res /= rs
 
-    alf_res /= 3600;
+    alf_res /= 3600
     while alf_res >= 24:
         alf_res -= 24
 
