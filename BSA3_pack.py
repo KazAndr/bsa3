@@ -62,7 +62,7 @@ def read_pnt(filename):
 
         data = np.fromfile(F, dtype=np.float32)
         data = data.reshape(
-                int(header['npoints'][0], 6, 8, len(header['fbands']) + 1))
+                int(header['npoints'][0]), 6, 8, len(header['fbands']) + 1)
 
     return header, data
 
@@ -244,5 +244,19 @@ def my_sidereal_time(time):
 
     while alf_res < 0:
         alf_res += 24
+
+    """
+        if (realSeconds): {
+                *realSeconds = alf_res * 3600;
+                }
+
+        delt_res /= 3600;
+        while delt_res >= 360:
+            delt_res -= 360
+
+    while delt_res < 0:
+        delt_res += 360
+        print(Angle(delt_res*u.hourangle))
+    """
 
     return Angle(alf_res*u.hourangle)

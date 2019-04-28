@@ -1,8 +1,9 @@
 # Directories
+__pycache__/
 data_pnt/
 .ipynb_checkpoints/
 
 #Pattern of files
 ..*~
 .*~
-#just test
+secret_key.py

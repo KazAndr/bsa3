@@ -1,6 +1,7 @@
 # Directories
 __pycache__/
 data_pnt/
+data_pntht/
 .ipynb_checkpoints/
 
 #Pattern of files
