@@ -5,6 +5,7 @@ data_pntht/
 .ipynb_checkpoints/
 
 #Pattern of files
+*.log
 ..*~
 .*~
 secret_key.py
